@@ -1,14 +1,14 @@
 html,
 body {
-	background-color: #a1e868;
+	background-color: #fff;
 	overscroll-behavior: none;
 }
 
-@media screen and (max-width: 12in) {
-	body {
-		padding-top: 1in;
-	}
-}
+// @media screen and (max-width: 12in) {
+// 	body {
+// 		padding-top: 1in;
+// 	}
+// }
 
 #screen {
 	display: block;
@@ -20,5 +20,5 @@ body {
 	margin: 4vh auto;
 
 	padding: 1px;
-	border: 2px dotted black;
+	border: 1px solid black;
 }

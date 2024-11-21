@@ -1,20 +1,19 @@
+import Point from "./Point.ts";
+
 const snakeColor = "#edad62";
-const backgroundColor = "#a1e868";
+const backgroundColor = "#fff";
 const nibbleColor = "#f79055";
 
-const gridSize = 15;
-const squarePadding = 100 / (gridSize * 6 + 1); // Padding is 1 "fragment", square is 5 "fragments"
+const gridSize = 35;
+const speed = 6;
+const frameTime = 1000 / speed;
+const squarePadding = 100 / (gridSize * 6 + 1); // padding is 1fr, square is 5fr
 const squareSize = squarePadding * 5;
-
-type Point = {
-	x: number;
-	y: number;
-};
 
 let canvas: HTMLCanvasElement;
 let _2d: CanvasRenderingContext2D;
 
-let currentGame: NodeJS.Timeout;
+let currentGame: ReturnType<typeof setTimeout>;
 let snake: Point[];
 let direction: Point;
 let nibble: Point;
@@ -23,66 +22,51 @@ function RNDM_RG(min: number, max: number): number {
 	return Math.floor(Math.random() * (max - min) + min);
 }
 
-const v2 = (x: number, y: number): Point => ({ x, y });
-
-const v2Add = (a: Point, b: Point): Point => ({
-	x: a.x + b.x,
-	y: a.y + b.y,
-});
-
-const v2Sub = (a: Point, b: Point): Point => ({
-	x: a.x - b.x,
-	y: a.y - b.y,
-});
-
 function setup() {
-	canvas = document.querySelector("#screen");
-	_2d = canvas.getContext("2d");
+	canvas = document.querySelector("#screen")!;
+	_2d = canvas.getContext("2d")!;
 
 	setSize();
 	startGame();
 
 	canvas.addEventListener("click", startGame);
 
-	let initialX: number | null = null;
-	let initialY: number | null = null;
+	let initialPoint: Point | null = null;
 
-	canvas.addEventListener("touchstart", (touch) => {
-		initialX = touch.touches[0].clientX;
-		initialY = touch.touches[0].clientY;
-
-		touch.preventDefault();
-		return false;
+	canvas.addEventListener("touchstart", (event) => {
+		event.preventDefault();
+		initialPoint = new Point(
+			event.touches[0].clientX,
+			event.touches[0].clientY,
+		);
 	});
 
-	canvas.addEventListener("touchmove", (touch) => {
+	canvas.addEventListener("touchmove", (event) => {
 		if (currentGame) {
-			touch.preventDefault();
-			return false;
+			event.preventDefault();
 		}
 	});
 
-	canvas.addEventListener("touchend", (touch) => {
-		if (currentGame) {
-			const diffX = touch.changedTouches[0].clientX - initialX;
-			const diffY = touch.changedTouches[0].clientY - initialY;
-
-			if (Math.abs(diffX) > Math.abs(diffY)) {
-				if (diffX > 50) right();
-				else if (diffX < -50) left();
-				else space();
-			} else {
-				if (diffY > 50) down();
-				else if (diffY < -50) up();
-				else space();
-			}
-
-			touch.preventDefault();
-			return false;
-		} else {
+	canvas.addEventListener("touchend", (event) => {
+		event.preventDefault();
+		if (!currentGame) {
 			space();
-			touch.preventDefault();
-			return false;
+			return;
+		}
+
+		const diff = new Point(
+			event.changedTouches[0].clientX,
+			event.changedTouches[0].clientY,
+		).sub(initialPoint);
+
+		if (Math.abs(diff.x) > Math.abs(diff.y)) {
+			if (diff.x > 50) right();
+			else if (diff.x < -50) left();
+			else space();
+		} else {
+			if (diff.y > 50) down();
+			else if (diff.y < -50) up();
+			else space();
 		}
 	});
 }
@@ -101,16 +85,18 @@ function setSize() {
 }
 
 function randomNibble() {
-	nibble = v2(RNDM_RG(0, gridSize), RNDM_RG(0, gridSize));
+	nibble = new Point(RNDM_RG(0, gridSize), RNDM_RG(0, gridSize));
 
-	const collision = snake.some((pos) => pos.x === nibble.x && pos.y === nibble.y);
+	const collision = snake.some(
+		(pos) => pos.x === nibble.x && pos.y === nibble.y,
+	);
 
 	if (collision) return randomNibble();
 	drawNibble();
 }
 
 function drawNibble() {
-	const nibblePosition = v2(
+	const nibblePosition = new Point(
 		nibble.x * (squareSize + squarePadding),
 		nibble.y * (squareSize + squarePadding),
 	);
@@ -125,10 +111,10 @@ function drawNibble() {
 }
 
 function drawSnake() {
-	snake.forEach((coords) => {
-		const nextTilePosition = v2(
-			coords.x * (squareSize + squarePadding),
-			coords.y * (squareSize + squarePadding),
+	for (const bit of snake) {
+		const nextTilePosition = new Point(
+			bit.x * (squareSize + squarePadding),
+			bit.y * (squareSize + squarePadding),
 		);
 
 		_2d.fillStyle = snakeColor;
@@ -138,7 +124,7 @@ function drawSnake() {
 			squareSize,
 			squareSize,
 		);
-	});
+	}
 }
 
 function startGame() {
@@ -150,22 +136,27 @@ function startGame() {
 			currentGame = null;
 		} else {
 			document.body.style.overflow = "hidden";
-			currentGame = setInterval(update, 300);
+			currentGame = setInterval(update, frameTime);
 		}
 		return;
 	}
 
 	// Game setup
 	const middle = Math.floor(gridSize / 2);
-	const center = v2(middle, middle);
+	const center = new Point(middle, middle);
 
 	// Draw the background
 	_2d.fillStyle = backgroundColor;
 	_2d.fillRect(0, 0, 100, 100);
 
 	// Create and draw the snake
-	direction = [v2(1, 0), v2(-1, 0), v2(0, 1), v2(0, -1)][RNDM_RG(0, 4)];
-	snake = [v2Add(center, direction), center, v2Sub(center, direction)];
+	direction = [
+		new Point(1, 0),
+		new Point(-1, 0),
+		new Point(0, 1),
+		new Point(0, -1),
+	][RNDM_RG(0, 4)];
+	snake = [center.add(direction), center, center.sub(direction)];
 	drawSnake();
 
 	// Draw the nibble
@@ -175,8 +166,8 @@ function startGame() {
 function update() {
 	// Add the direction magnitude to the snakes head to determine the next tile
 	// position logically and on the screen.
-	const nextTile = v2Add(snake[0], direction);
-	const nextTilePosition = v2(
+	const nextTile = snake[0].add(direction);
+	const nextTilePosition = new Point(
 		nextTile.x * (squareSize + squarePadding),
 		nextTile.y * (squareSize + squarePadding),
 	);
@@ -189,8 +180,8 @@ function update() {
 	if (nextTile.x === nibble.x && nextTile.y === nibble.y) {
 		ateTheNibble = true;
 	} else {
-		const oldTile = snake.pop();
-		const oldTilePosition = v2(
+		const oldTile = snake.pop()!;
+		const oldTilePosition = new Point(
 			oldTile.x * (squareSize + squarePadding),
 			oldTile.y * (squareSize + squarePadding),
 		);
@@ -211,9 +202,9 @@ function update() {
 	// ..or if you went over the edge, then you died! Restarting!
 	if (
 		overlap ||
-		nextTile.x > gridSize ||
+		nextTile.x >= gridSize ||
 		nextTile.x < 0 ||
-		nextTile.y > gridSize ||
+		nextTile.y >= gridSize ||
 		nextTile.y < 0
 	) {
 		clearInterval(currentGame);
@@ -240,7 +231,7 @@ function update() {
 function immediateUpdate() {
 	clearInterval(currentGame);
 	update();
-	currentGame = setInterval(update, 300);
+	currentGame = setInterval(update, frameTime);
 }
 
 function space() {
@@ -248,22 +239,22 @@ function space() {
 }
 
 function up() {
-	direction = v2(0, -1);
+	direction = new Point(0, -1);
 	immediateUpdate();
 }
 
 function down() {
-	direction = v2(0, 1);
+	direction = new Point(0, 1);
 	immediateUpdate();
 }
 
 function left() {
-	direction = v2(-1, 0);
+	direction = new Point(-1, 0);
 	immediateUpdate();
 }
 
 function right() {
-	direction = v2(1, 0);
+	direction = new Point(1, 0);
 	immediateUpdate();
 }
 
@@ -274,37 +265,41 @@ window.addEventListener("resize", () => {
 	drawNibble();
 });
 
-window.addEventListener("keydown", (key) => {
-	if (key.keyCode === 32) {
+window.addEventListener("keydown", (event) => {
+	if (event.key === " ") {
 		space();
-		key.preventDefault();
+		event.preventDefault();
 		return false;
 	}
 
 	if (currentGame) {
-		switch (key.keyCode) {
-			case 32:
+		switch (event.key) {
+			case " ":
 				space();
 				break;
-			case 65:
-			case 37:
+			case "ArrowLeft":
+			case "A":
+			case "a":
 				left();
 				break;
-			case 87:
-			case 38:
+			case "ArrowUp":
+			case "W":
+			case "w":
 				up();
 				break;
-			case 68:
-			case 39:
+			case "ArrowRight":
+			case "D":
+			case "d":
 				right();
 				break;
-			case 83:
-			case 40:
+			case "ArrowDown":
+			case "S":
+			case "s":
 				down();
 				break;
 		}
 
-		key.preventDefault();
+		event.preventDefault();
 		return false;
 	}
 });
