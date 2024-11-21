@@ -3,7 +3,7 @@
 }
 
 :root {
-	--bg: #f9fff9;
+	--bg: #fff;
 	--snake-color: #fcd34d;
 	--nibble-color: #fb923c;
 }
@@ -14,24 +14,25 @@ body {
 	overflow: hidden;
 	overscroll-behavior: none;
 	margin: 0;
+	user-select: none;
 }
 
 .container {
 	display: flex;
 	align-items: center;
 	justify-content: center;
+	padding: 32px;
 	height: 100dvh;
 	width: 100dvw;
-	padding: 32px;
 }
 
 canvas {
+	background-color: #1a11;
+	border: 1px solid #1a1a;
+	border-radius: 4px;
+	padding: 2px;
 	width: 90svw;
 	max-height: 90svw;
 	height: 90svh;
 	max-width: 90svh;
-
-	padding: 2px;
-	border: 1px solid #191a;
-	border-radius: 4px;
 }

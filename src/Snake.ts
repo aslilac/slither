@@ -154,9 +154,7 @@ export default class Snake {
 	}
 
 	#pickRandomDirection(): Point {
-		return [Directions.LEFT, Directions.UP, Directions.RIGHT, Directions.DOWN][
-			Random.inRange(0, 4)
-		];
+		return Random.fromArray(Object.values(Directions));
 	}
 
 	#findFreshSnake(): Point[] {
@@ -170,6 +168,7 @@ export default class Snake {
 	#placeRandomNibble(): Point {
 		let nibble: Point;
 		let collides: boolean;
+		// This is
 		do {
 			nibble = new Point(
 				Random.inRange(0, this.#options.gridSize),
@@ -203,10 +202,9 @@ export default class Snake {
 		);
 		if (
 			overlap ||
-			nextTile.x >= this.#options.gridSize ||
 			nextTile.x < 0 ||
-			nextTile.y >= this.#options.gridSize ||
-			nextTile.y < 0
+			nextTile.y < 0 ||
+			Math.max(nextTile.x, nextTile.y) >= this.#options.gridSize
 		) {
 			return this.#initialize();
 		}

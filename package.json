@@ -1,8 +1,12 @@
 {
 	"name": "slither",
-	"version": "1.0.0",
-	"license": "MPL-2.0",
+	"version": "1.1.0",
+	"author": "McKayla Washburn <mckayla@hey.com>",
 	"type": "module",
+	"license": "MPL-2.0",
+	"homepage": "https://mckay.la/slither",
+	"repository": "https://github.com/aslilac/slither",
+	"bugs": "https://github.com/aslilac/slither/issues",
 	"devDependencies": {
 		"prettier": "~3.3.3",
 		"sass": "^1.81.0",
