@@ -2,6 +2,7 @@
 	"name": "slither",
 	"version": "1.0.0",
 	"license": "MPL-2.0",
+	"type": "module",
 	"devDependencies": {
 		"prettier": "~3.3.3",
 		"sass": "^1.81.0",

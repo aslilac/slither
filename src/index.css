@@ -1,0 +1,37 @@
+* {
+	box-sizing: border-box;
+}
+
+:root {
+	--bg: #f9fff9;
+	--snake-color: #fcd34d;
+	--nibble-color: #fb923c;
+}
+
+html,
+body {
+	background-color: var(--bg);
+	overflow: hidden;
+	overscroll-behavior: none;
+	margin: 0;
+}
+
+.container {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 100dvh;
+	width: 100dvw;
+	padding: 32px;
+}
+
+canvas {
+	width: 90svw;
+	max-height: 90svw;
+	height: 90svh;
+	max-width: 90svh;
+
+	padding: 2px;
+	border: 1px solid #191a;
+	border-radius: 4px;
+}

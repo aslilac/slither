@@ -11,4 +11,8 @@ export default class Point {
 	sub(other: Point) {
 		return new Point(this.x - other.x, this.y - other.y);
 	}
+
+	isInverse(other: Point) {
+		return this.x === -other.x && this.y === -other.y;
+	}
 }
